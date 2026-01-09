@@ -69,14 +69,12 @@ const OrderModal: React.FC<OrderModalProps> = ({ pkg, quantity, playerId, onClos
         status: OrderStatus.PENDING
       };
 
-      // Save to local storage (simulated database)
       const savedOrders = localStorage.getItem('sadik_orders');
       const orders = savedOrders ? JSON.parse(savedOrders) : [];
       localStorage.setItem('sadik_orders', JSON.stringify([...orders, newOrder]));
 
       setSubmittedOrderId(orderId);
       
-      // Artificial delay for professional feel
       setTimeout(() => {
         setIsSuccess(true);
         setIsSubmitting(false);
@@ -91,11 +89,11 @@ const OrderModal: React.FC<OrderModalProps> = ({ pkg, quantity, playerId, onClos
   const getMethodStyle = (method: PaymentMethod) => {
     const isActive = formData.paymentMethod === method;
     switch (method) {
-      case PaymentMethod.BKASH: return isActive ? 'bg-[#e2136e] text-white border-[#e2136e]' : 'bg-slate-900 border-slate-700 text-slate-500';
-      case PaymentMethod.NAGAD: return isActive ? 'bg-[#f26322] text-white border-[#f26322]' : 'bg-slate-900 border-slate-700 text-slate-500';
-      case PaymentMethod.ROCKET: return isActive ? 'bg-[#8c3494] text-white border-[#8c3494]' : 'bg-slate-900 border-slate-700 text-slate-500';
-      case PaymentMethod.UPAY: return isActive ? 'bg-[#ffc20e] text-slate-900 border-[#ffc20e]' : 'bg-slate-900 border-slate-700 text-slate-500';
-      default: return 'bg-slate-900 border-slate-700 text-slate-500';
+      case PaymentMethod.BKASH: return isActive ? 'bg-[#e2136e] text-white border-[#e2136e]' : 'bg-slate-50 border-slate-200 text-slate-500';
+      case PaymentMethod.NAGAD: return isActive ? 'bg-[#f26322] text-white border-[#f26322]' : 'bg-slate-50 border-slate-200 text-slate-500';
+      case PaymentMethod.ROCKET: return isActive ? 'bg-[#8c3494] text-white border-[#8c3494]' : 'bg-slate-50 border-slate-200 text-slate-500';
+      case PaymentMethod.UPAY: return isActive ? 'bg-[#ffc20e] text-[#333] border-[#ffc20e]' : 'bg-slate-50 border-slate-200 text-slate-500';
+      default: return 'bg-slate-50 border-slate-200 text-slate-500';
     }
   };
 
@@ -109,8 +107,8 @@ const OrderModal: React.FC<OrderModalProps> = ({ pkg, quantity, playerId, onClos
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}></div>
-      <div className="relative w-full max-w-md bg-[#1e293b] rounded-3xl shadow-2xl border border-slate-700 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose}></div>
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="p-6 max-h-[90vh] overflow-y-auto">
           {isSuccess ? (
             <div className="py-2 animate-in zoom-in-95 duration-300">
@@ -118,43 +116,39 @@ const OrderModal: React.FC<OrderModalProps> = ({ pkg, quantity, playerId, onClos
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/20">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg>
                 </div>
-                <h2 className="text-2xl font-black text-white">Order Received!</h2>
-                <p className="text-slate-400 text-xs mt-1">Your order is being processed by our team.</p>
+                <h2 className="text-2xl font-bold text-slate-800">Order Received!</h2>
+                <p className="text-slate-500 text-xs mt-1 font-medium">Your order is being processed by our team.</p>
               </div>
 
-              <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5 mb-6">
-                <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-800">
-                  <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Order Receipt</span>
-                  <span className="text-[10px] text-green-400 font-black uppercase tracking-widest bg-green-400/10 px-2 py-0.5 rounded">PENDING</span>
+              <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 mb-8">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Receipt Details</span>
+                  <span className="text-[10px] text-green-600 font-bold uppercase tracking-wider bg-green-100 px-3 py-1 rounded-full">PENDING</span>
                 </div>
                 
-                <div className="space-y-3 mb-6">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500 font-bold">Order ID:</span>
-                    <button onClick={handleCopyId} className="text-[#ff7d00] font-mono font-bold flex items-center gap-1.5 hover:opacity-80">
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-slate-400 font-medium">Order ID:</span>
+                    <button onClick={handleCopyId} className="text-[#ff7d00] font-mono font-bold flex items-center gap-2 hover:opacity-80">
                       {submittedOrderId}
-                      <svg className={`w-3 h-3 ${idCopied ? 'text-green-400' : 'text-slate-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className={`w-3.5 h-3.5 ${idCopied ? 'text-green-500' : 'text-slate-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
                     </button>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500 font-bold">Item:</span>
-                    <span className="text-slate-200 font-bold">{pkg.label} x{quantity}</span>
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-slate-400 font-medium">Item:</span>
+                    <span className="text-slate-700 font-bold">{pkg.label}</span>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500 font-bold">Player ID:</span>
-                    <span className="text-slate-200 font-bold">{formData.playerId}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500 font-bold">Total Paid:</span>
-                    <span className="text-slate-200 font-bold">৳{totalPrice}</span>
+                  <div className="flex justify-between text-[13px]">
+                    <span className="text-slate-400 font-medium">Total Paid:</span>
+                    <span className="text-[#e67e22] font-bold">৳{totalPrice}</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-800/50 rounded-xl p-3 text-center">
-                  <p className="text-[10px] text-slate-400 leading-relaxed">
-                    Diamonds will be added to your account within <span className="text-white font-bold">5-30 minutes</span>. If you face any issues, contact support with your Order ID.
+                <div className="bg-white border border-slate-200 rounded-xl p-4 text-center">
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    Processing time: <span className="text-slate-800 font-bold">5-10 minutes</span>. Please keep your Order ID for reference.
                   </p>
                 </div>
               </div>
@@ -162,113 +156,93 @@ const OrderModal: React.FC<OrderModalProps> = ({ pkg, quantity, playerId, onClos
               <div className="space-y-3">
                 <button 
                   onClick={() => { onTrackOrder?.(); onClose(); }}
-                  className="w-full bg-[#ff7d00] hover:bg-[#e67000] text-slate-950 font-black py-4 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full bg-[#ff7d00] hover:bg-[#e67000] text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 text-sm"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                   Track My Order
                 </button>
-                <button onClick={onClose} className="w-full text-slate-500 hover:text-white font-black py-3 transition-all text-[10px] uppercase tracking-widest">
+                <button onClick={onClose} className="w-full text-slate-400 hover:text-slate-600 font-bold py-3 transition-all text-[11px] uppercase tracking-wider">
                   Back to Shop
                 </button>
               </div>
             </div>
           ) : (
             <>
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-8">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Complete Order</h2>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Local Direct Processing</p>
+                  <h2 className="text-xl font-bold text-slate-800">Complete Purchase</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Secure Transaction</p>
                 </div>
-                <button onClick={onClose} className="p-1 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-300 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
 
               {error && (
-                <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 animate-in slide-in-from-top-2 duration-300">
-                  <div className="flex items-start gap-3 text-xs font-medium">
+                <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-500 animate-in slide-in-from-top-2 duration-300">
+                  <div className="flex items-start gap-3 text-[12px] font-medium">
                     <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <p>{error.message}</p>
                   </div>
                 </div>
               )}
 
-              <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700 mb-6 flex items-center gap-4">
-                <div className="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center text-[#ff7d00]">
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-8 flex items-center gap-5">
+                <div className="w-12 h-12 bg-white rounded-xl border border-slate-100 flex items-center justify-center text-[#ff7d00] shadow-sm">
                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 9.5L12 22L19.5 9.5L12 2Z" /></svg>
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Package Details</p>
+                  <p className="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Item Details</p>
                   <div className="flex justify-between items-center">
-                    <p className="text-sm font-bold text-slate-200">{pkg.label}</p>
-                    <p className="text-lg font-black text-[#ff7d00]">৳{totalPrice}</p>
+                    <p className="text-sm font-bold text-slate-700">{pkg.label} x{quantity}</p>
+                    <p className="text-lg font-bold text-[#e67e22]">৳{totalPrice}</p>
                   </div>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Account Type</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {Object.values(AccountType).map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setFormData({...formData, accountType: type})}
-                        className={`flex flex-col items-center gap-1.5 py-3 px-1 text-[10px] font-black rounded-xl border transition-all ${
-                          formData.accountType === type ? 'bg-[#ff7d00]/10 border-[#ff7d00] text-[#ff7d00]' : 'bg-slate-900 border-slate-700 text-slate-500'
-                        }`}
-                      >
-                        {renderAccountIcon(type)}
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-slate-900 border border-slate-700 rounded-2xl p-4">
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2 text-center">Payment Info (Personal)</p>
-                  <div className="flex items-center justify-center gap-4">
-                    <span className="text-lg font-black text-white font-mono">{PAYMENT_NUMBER}</span>
-                    <button type="button" onClick={handleCopyNumber} className={`text-[10px] font-black px-3 py-1.5 rounded-lg border transition-all ${copied ? 'bg-green-500 text-slate-950 border-green-500' : 'text-[#ff7d00] bg-[#ff7d00]/10 border-[#ff7d00]/30'}`}>
-                      {copied ? 'COPIED' : 'COPY'}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Payment Method</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <label className="block text-[12px] font-bold text-slate-700 mb-3">Payment Method</label>
+                  <div className="grid grid-cols-2 gap-3">
                     {Object.values(PaymentMethod).map((m) => (
-                      <button key={m} type="button" onClick={() => setFormData({...formData, paymentMethod: m})} className={`py-3 rounded-xl border font-black text-xs transition-all ${getMethodStyle(m)}`}>
+                      <button key={m} type="button" onClick={() => setFormData({...formData, paymentMethod: m})} className={`py-3.5 rounded-xl border font-bold text-[12px] transition-all ${getMethodStyle(m)}`}>
                         {m}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-1">TrxID / Number Proof</label>
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2 text-center">Payment Info (Personal)</p>
+                  <div className="flex items-center justify-center gap-4">
+                    <span className="text-lg font-bold text-slate-800 font-mono tracking-tight">{PAYMENT_NUMBER}</span>
+                    <button type="button" onClick={handleCopyNumber} className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border transition-all ${copied ? 'bg-green-500 text-white border-green-500' : 'text-[#ff7d00] bg-white border-[#ff7d00]/30'}`}>
+                      {copied ? 'COPIED' : 'COPY'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="block text-[12px] font-bold text-slate-700 mb-1">Transaction ID / Proof</label>
                   <input 
                     required 
                     type="text" 
                     placeholder="Transaction ID or Sender Number" 
-                    className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-5 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-[#ff7d00] transition-all"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-5 py-4 text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#ff7d00] transition-all"
                     value={formData.trxId} 
                     onChange={(e) => setFormData({...formData, trxId: e.target.value})} 
                   />
-                  <p className="text-[9px] text-slate-500 italic px-1">
-                    Send ৳{totalPrice} to {PAYMENT_NUMBER} before clicking confirm.
+                  <p className="text-[10px] text-slate-400 font-medium px-1">
+                    Please pay ৳{totalPrice} to {PAYMENT_NUMBER} before confirming.
                   </p>
                 </div>
 
                 <button 
                   type="submit" 
                   disabled={isSubmitting} 
-                  className={`w-full ${isSubmitting ? 'bg-slate-700' : 'bg-[#ff7d00] hover:bg-[#e67000]'} text-slate-950 font-black py-4.5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-orange-500/10 mt-2`}
+                  className={`w-full ${isSubmitting ? 'bg-slate-200' : 'bg-[#ff7d00] hover:bg-[#e67000]'} text-white font-bold py-4.5 rounded-xl flex items-center justify-center gap-3 transition-all shadow-lg mt-4 h-14`}
                 >
                   {isSubmitting ? (
-                    <svg className="animate-spin h-5 w-5 text-slate-950" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                    <svg className="animate-spin h-5 w-5 text-slate-400" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                   ) : 'Confirm Direct Order'}
                 </button>
               </form>

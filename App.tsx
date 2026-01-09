@@ -22,7 +22,6 @@ const App: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Load initial data
   useEffect(() => {
     const savedPackages = localStorage.getItem('sadik_packages');
     if (savedPackages) {
@@ -32,14 +31,12 @@ const App: React.FC = () => {
         console.error("Error parsing saved packages", e);
       }
     }
-
     const savedEmail = localStorage.getItem('sadik_user_email');
     if (savedEmail) {
       setUserEmail(savedEmail);
     }
   }, []);
 
-  // Persist packages whenever they change
   useEffect(() => {
     localStorage.setItem('sadik_packages', JSON.stringify(packages));
   }, [packages]);
@@ -49,6 +46,10 @@ const App: React.FC = () => {
   const handleAction = () => {
     if (!playerId.trim()) {
       alert("Please enter your Player ID/UID first!");
+      return;
+    }
+    if (!selectedPackage) {
+      alert("Please select a package first!");
       return;
     }
     setIsModalOpen(true);
@@ -75,8 +76,18 @@ const App: React.FC = () => {
     return packages.filter(p => packageIds.includes(p.id));
   };
 
+  const renderStars = (rating: number) => (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map(s => (
+        <svg key={s} className={`w-3 h-3 ${s <= Math.floor(rating) ? 'text-yellow-400' : 'text-slate-200'}`} fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[#f1f5f9] text-slate-900 pb-20">
+    <div className="min-h-screen bg-[#f1f3f6] text-[#333] pb-20">
       <Header 
         setView={(v) => { setView(v); setSelectedProduct(null); }} 
         currentView={view} 
@@ -86,12 +97,12 @@ const App: React.FC = () => {
         isLoggedIn={!!userEmail}
       />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-44 sm:pt-48">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-48 sm:pt-52">
         {view === 'shop' && !selectedProduct && (
-          <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-slate-200">
-              <span className="text-xs font-bold text-slate-500">Showing all {SHOP_PRODUCTS.length} results</span>
-              <select className="bg-slate-100 text-[11px] font-bold px-3 py-1.5 rounded border-none outline-none text-slate-700">
+          <div className="animate-in fade-in duration-500">
+            <div className="flex justify-between items-center mb-6 px-1">
+              <span className="text-[12px] font-medium text-slate-500">Showing all {SHOP_PRODUCTS.length} results</span>
+              <select className="bg-white border border-slate-200 text-[11px] font-medium px-4 py-2 rounded shadow-sm outline-none text-slate-700">
                 <option>Sort by popularity</option>
                 <option>Sort by latest</option>
                 <option>Sort by price: low to high</option>
@@ -99,24 +110,29 @@ const App: React.FC = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {SHOP_PRODUCTS.map((product) => (
-                <div key={product.id} className="bg-white rounded overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-200 group">
-                  <div className="relative aspect-square overflow-hidden bg-slate-100">
-                     <div className="absolute top-2 left-2 z-10 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center p-1 shadow-sm">
-                       <svg className="w-full h-full text-slate-900" viewBox="0 0 24 24" fill="currentColor"><path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5Z" /></svg>
+                <div key={product.id} className="bg-white rounded overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-100 flex flex-col">
+                  <div className="relative aspect-square overflow-hidden bg-white p-1">
+                     <div className="absolute top-2 left-2 z-10 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center p-1.5 shadow-sm">
+                        <svg className="w-full h-full text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5Z" />
+                        </svg>
                      </div>
-                     <img src={product.image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                     <img src={product.image} alt={product.title} className="w-full h-full object-cover rounded" />
                   </div>
-                  <div className="p-3 sm:p-4 text-center">
-                    <h3 className="text-[12px] sm:text-[13px] font-bold text-slate-700 h-10 line-clamp-2 leading-tight mb-2">{product.title}</h3>
-                    <div className="flex justify-center mb-2">
-                       {[1, 2, 3, 4, 5].map(s => (
-                         <svg key={s} className={`w-2.5 h-2.5 ${s <= Math.floor(product.rating) ? 'text-yellow-400' : 'text-slate-300'}`} fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                       ))}
+                  <div className="p-3 sm:p-4 text-center flex-1 flex flex-col items-center">
+                    <h3 className="text-[12px] sm:text-[13px] font-medium text-slate-700 mb-1 leading-tight h-10 overflow-hidden line-clamp-2">{product.title}</h3>
+                    <div className="mb-2">
+                       {renderStars(product.rating)}
                     </div>
-                    <p className="text-[#ff7d00] font-black text-xs sm:text-sm mb-4">{product.priceRange}</p>
-                    <button onClick={() => { setSelectedProduct(product); const filtered = getFilteredPackages(product.packageIds); setSelectedPackage(filtered[0] || null); }} className="w-full py-1.5 px-3 border border-slate-300 rounded text-[10px] font-bold text-slate-600 hover:bg-[#ff7d00] hover:text-white hover:border-[#ff7d00] transition-all">Select options</button>
+                    <p className="text-[#e67e22] font-bold text-[13px] sm:text-sm mb-4">{product.priceRange}</p>
+                    <button 
+                      onClick={() => { setSelectedProduct(product); setSelectedPackage(null); setQuantity(1); }} 
+                      className="mt-auto w-full py-2 px-3 border border-slate-200 rounded text-[11px] font-bold text-slate-500 hover:bg-[#ff7d00] hover:text-white hover:border-[#ff7d00] transition-all"
+                    >
+                      Select options
+                    </button>
                   </div>
                 </div>
               ))}
@@ -125,47 +141,78 @@ const App: React.FC = () => {
         )}
 
         {view === 'shop' && selectedProduct && (
-          <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 animate-in fade-in zoom-in-95 duration-300">
-            <div className="flex flex-col lg:flex-row">
-              <div className="lg:w-1/2 p-4 sm:p-8 bg-slate-50 flex items-center justify-center border-r border-slate-100">
-                <div className="relative w-full max-w-md">
-                   <img src={selectedProduct.image} alt={selectedProduct.title} className="w-full aspect-square object-cover rounded shadow-lg border border-white" />
-                  <button onClick={() => setSelectedProduct(null)} className="absolute top-4 left-4 bg-white/80 backdrop-blur rounded-full p-2 shadow-md hover:bg-white transition-colors">
-                    <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                  </button>
+          <div className="bg-white rounded p-4 sm:p-8 md:p-12 shadow-sm border border-slate-200 animate-in fade-in duration-300">
+            <div className="flex flex-col lg:flex-row gap-8 sm:gap-16">
+              {/* Product Gallery */}
+              <div className="lg:w-[45%]">
+                <div className="relative border border-slate-100 rounded p-1">
+                  <div className="absolute top-4 left-4 z-10 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center p-2 shadow-sm">
+                    <svg className="w-full h-full text-slate-800" viewBox="0 0 24 24" fill="currentColor"><path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5Z" /></svg>
+                  </div>
+                  <img src={selectedProduct.image} alt={selectedProduct.title} className="w-full h-auto object-cover rounded" />
                 </div>
               </div>
-              <div className="lg:w-1/2 p-6 sm:p-10">
-                <nav className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex gap-2">
-                  <span>Home</span> / <span>Shop</span> / <span className="text-[#ff7d00]">{selectedProduct.title}</span>
-                </nav>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2 leading-tight">{selectedProduct.title}</h1>
-                <div className="text-xl font-black text-[#ff7d00] mb-8">
+
+              {/* Product Details */}
+              <div className="lg:w-[55%]">
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#333] mb-2">{selectedProduct.title}</h1>
+                <div className="flex items-center gap-2 mb-6">
+                  {renderStars(selectedProduct.rating)}
+                  <span className="text-[11px] text-slate-400 font-medium">({selectedProduct.reviews} customer reviews)</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-bold text-[#e67e22] mb-6">
                   {selectedPackage ? `৳ ${selectedPackage.price}` : selectedProduct.priceRange}
                 </div>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Choice Option</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {getFilteredPackages(selectedProduct.packageIds).map((pkg) => (
-                        <button key={pkg.id} onClick={() => setSelectedPackage(pkg)} className={`flex flex-col items-center justify-center p-2 rounded border transition-all ${selectedPackage?.id === pkg.id ? 'bg-[#ff7d00]/5 border-[#ff7d00] text-[#ff7d00] shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-400'}`}>
-                          <span className="text-[10px] font-bold text-center leading-tight">{pkg.label}</span>
-                          <span className="text-[11px] font-black mt-1">৳ {pkg.price}</span>
-                        </button>
-                      ))}
-                    </div>
+                
+                <div className="space-y-8">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    {getFilteredPackages(selectedProduct.packageIds).map((pkg) => (
+                      <button
+                        key={pkg.id}
+                        onClick={() => setSelectedPackage(pkg)}
+                        className={`flex items-center justify-between px-4 py-4 rounded border text-[11px] font-semibold transition-all ${
+                          selectedPackage?.id === pkg.id 
+                          ? 'bg-white border-[#f8b482] text-[#333] ring-1 ring-[#f8b482]' 
+                          : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                        }`}
+                      >
+                        <span>{pkg.label}</span>
+                        <span className="text-[10px] text-slate-400 font-medium">৳ {pkg.price}</span>
+                      </button>
+                    ))}
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Player ID/UID <span className="text-red-500">*</span></label>
-                    <input type="text" placeholder="এখানে প্লেয়ার আইডি লিখুন" value={playerId} onChange={(e) => setPlayerId(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#ff7d00] transition-all" />
+
+                  <div className="space-y-3">
+                    <label className="block text-[13px] font-bold text-slate-700">
+                      Player ID/UID <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="text"
+                      placeholder="এখানে প্লেয়ার আইডি লিখুন"
+                      value={playerId}
+                      onChange={(e) => setPlayerId(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded px-4 py-4 text-sm focus:outline-none focus:border-[#f8b482] focus:ring-1 focus:ring-[#f8b482] transition-all placeholder:text-slate-300"
+                    />
                   </div>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center bg-white border border-slate-200 rounded h-12">
-                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 text-slate-400 hover:text-slate-800 font-bold">-</button>
-                      <input type="number" readOnly value={quantity} className="w-8 text-center bg-transparent text-sm font-bold border-x border-slate-100 h-full focus:outline-none" />
-                      <button onClick={() => setQuantity(quantity + 1)} className="w-10 text-slate-400 hover:text-slate-800 font-bold">+</button>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <div className="flex items-center bg-white border border-slate-200 rounded h-14 w-full sm:w-auto overflow-hidden">
+                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-12 h-full text-slate-400 hover:text-slate-800 hover:bg-slate-50 font-bold transition-colors">-</button>
+                      <input type="number" readOnly value={quantity} className="w-10 text-center bg-transparent text-[14px] font-bold h-full focus:outline-none" />
+                      <button onClick={() => setQuantity(quantity + 1)} className="w-12 h-full text-slate-400 hover:text-slate-800 hover:bg-slate-50 font-bold transition-colors">+</button>
                     </div>
-                    <button onClick={handleAction} className="flex-1 bg-[#ff7d00] hover:bg-[#e67000] text-white font-bold h-12 rounded shadow-lg shadow-orange-500/10 transition-all active:scale-[0.98] uppercase text-xs tracking-wider">Buy Now</button>
+                    <button className="w-full sm:w-auto px-10 h-14 bg-[#f8b482]/20 border border-[#f8b482] text-[#e67e22] font-bold rounded text-[13px] hover:bg-[#f8b482]/30 transition-all uppercase tracking-wide">Add to basket</button>
+                    <button 
+                      onClick={handleAction} 
+                      className="w-full sm:flex-1 h-14 bg-[#f8b482] hover:bg-[#e67e22] text-white font-bold rounded transition-all active:scale-[0.98] text-[13px] uppercase tracking-wide shadow-sm"
+                    >
+                      Buy now
+                    </button>
+                  </div>
+
+                  <div className="pt-8 border-t border-slate-100 flex flex-col gap-2 text-[11px] text-slate-400 font-medium">
+                    <p><span className="font-bold text-slate-500">SKU:</span> {selectedProduct.id.toUpperCase()}</p>
+                    <p><span className="font-bold text-slate-500">Categories:</span> FF Discount, Free Fire BD, Free Fire, Top Up, Game Shop</p>
                   </div>
                 </div>
               </div>
