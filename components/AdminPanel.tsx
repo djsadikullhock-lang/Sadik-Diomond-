@@ -7,12 +7,15 @@ interface AdminPanelProps {
   updatePrice: (id: string, price: number) => void;
   deletePackage: (id: string) => void;
   addPackage: (pkg: DiamondPackage) => void;
+  bannerImage: string;
+  updateBanner: (url: string) => void;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ packages, updatePrice, deletePackage, addPackage }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ packages, updatePrice, deletePackage, addPackage, bannerImage, updateBanner }) => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTab, setActiveTab] = useState<'orders' | 'inventory'>('orders');
-  const [newPkg, setNewPkg] = useState({ label: '', price: 0 });
+  const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'settings'>('orders');
+  const [newPkg, setNewPkg] = useState({ label: '', price: 0, image: '' });
+  const [bannerPreview, setBannerPreview] = useState(bannerImage);
 
   useEffect(() => {
     const savedOrders = localStorage.getItem('sadik_orders');
@@ -21,6 +24,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ packages, updatePrice, deletePa
     }
   }, []);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isBanner: boolean = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      if (isBanner) {
+        setBannerPreview(base64String);
+        updateBanner(base64String);
+      } else {
+        setNewPkg({ ...newPkg, image: base64String });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeSelectedImage = () => {
+    setNewPkg({ ...newPkg, image: '' });
+  };
+
   const updateOrderStatus = (orderId: string, status: OrderStatus) => {
     const updated = orders.map(o => o.id === orderId ? { ...o, status } : o);
     setOrders(updated);
@@ -28,41 +52,51 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ packages, updatePrice, deletePa
   };
 
   const clearOrders = () => {
-    if (window.confirm("Are you sure you want to clear all order history? This action cannot be undone.")) {
+    if (window.confirm("Are you sure you want to clear all order history?")) {
       setOrders([]);
       localStorage.removeItem('sadik_orders');
     }
   };
 
   const handleAddPackage = () => {
-    if (!newPkg.label || newPkg.price <= 0) return;
+    if (!newPkg.label || newPkg.price <= 0) {
+      alert("Please enter a valid label and price.");
+      return;
+    }
     addPackage({
       id: Math.random().toString(36).substr(2, 9),
       label: newPkg.label,
-      price: newPkg.price
+      price: newPkg.price,
+      image: newPkg.image
     });
-    setNewPkg({ label: '', price: 0 });
+    setNewPkg({ label: '', price: 0, image: '' });
   };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-800/50 p-6 rounded-3xl border border-slate-700 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-800/50 p-6 rounded-3xl border border-slate-700 gap-4">
         <div>
           <h2 className="text-2xl font-black text-white">Admin Dashboard</h2>
           <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Management Console</p>
         </div>
-        <div className="flex bg-slate-900 p-1 rounded-2xl border border-slate-700">
+        <div className="flex flex-wrap bg-slate-900 p-1 rounded-2xl border border-slate-700">
           <button 
             onClick={() => setActiveTab('orders')} 
-            className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'orders' ? 'bg-[#f59e0b] text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'orders' ? 'bg-[#ff7d00] text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
           >
             Orders ({orders.length})
           </button>
           <button 
             onClick={() => setActiveTab('inventory')} 
-            className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'inventory' ? 'bg-[#f59e0b] text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'inventory' ? 'bg-[#ff7d00] text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
           >
             Inventory
+          </button>
+          <button 
+            onClick={() => setActiveTab('settings')} 
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'settings' ? 'bg-[#ff7d00] text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+          >
+            Settings
           </button>
         </div>
       </div>
@@ -71,169 +105,139 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ packages, updatePrice, deletePa
         <div className="space-y-4">
           <div className="flex justify-between items-center px-2">
              <h3 className="text-lg font-black text-slate-200">Recent Transactions</h3>
-             <button onClick={clearOrders} className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors">Clear All History</button>
+             <button onClick={clearOrders} className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400">Clear All</button>
           </div>
           
           {orders.length === 0 ? (
-            <div className="text-center py-24 bg-slate-800/20 rounded-3xl border border-dashed border-slate-700">
-              <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <p className="text-slate-500 font-bold">No orders found in database.</p>
+            <div className="text-center py-20 bg-slate-800/20 rounded-3xl border border-dashed border-slate-700">
+              <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">No orders to display.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...orders].reverse().map((order) => (
-                <div key={order.id} className="bg-[#1e293b] border border-slate-700 p-6 rounded-3xl shadow-xl flex flex-col justify-between hover:border-slate-600 transition-all group">
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                        order.status === OrderStatus.COMPLETED ? 'bg-green-500/20 text-green-400' : 
-                        order.status === OrderStatus.CANCELLED ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
-                      }`}>
-                        {order.status}
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-bold">{new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                    
-                    <div className="mb-4">
-                      <h4 className="font-black text-xl text-white group-hover:text-[#f59e0b] transition-colors">{order.package.label}</h4>
-                      <p className="text-slate-400 text-xs font-bold">Qty: {order.quantity}</p>
-                    </div>
-
-                    <div className="bg-slate-900/50 rounded-2xl p-4 space-y-2 border border-slate-800">
-                      <div className="flex justify-between text-[11px]">
-                        <span className="text-slate-500 font-bold uppercase tracking-widest">Player ID</span>
-                        <span className="text-slate-200 font-mono font-bold">{order.playerId}</span>
-                      </div>
-                      <div className="flex justify-between text-[11px]">
-                        <span className="text-slate-500 font-bold uppercase tracking-widest">Account</span>
-                        <span className="text-slate-200 font-bold">{order.accountType}</span>
-                      </div>
-                      <div className="flex justify-between text-[11px]">
-                        <span className="text-slate-500 font-bold uppercase tracking-widest">Method</span>
-                        <span className="text-slate-200 font-bold">{order.paymentMethod}</span>
-                      </div>
-                      <div className="pt-2 mt-2 border-t border-slate-800 flex justify-between items-center">
-                        <span className="text-slate-500 font-black text-[10px] uppercase">Amount</span>
-                        <span className="text-orange-400 font-black text-lg">৳{order.totalPrice}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 px-1">
-                      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Transaction Proof</p>
-                      <p className="text-xs text-slate-300 bg-slate-800/50 px-3 py-2 rounded-xl font-mono break-all border border-slate-700/50">{order.trxId}</p>
-                    </div>
+                <div key={order.id} className="bg-[#1e293b] border border-slate-700 p-6 rounded-3xl shadow-xl hover:border-slate-600 transition-all">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                      order.status === OrderStatus.COMPLETED ? 'bg-green-500/20 text-green-400' : 
+                      order.status === OrderStatus.CANCELLED ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+                    }`}>
+                      {order.status}
+                    </span>
+                    <span className="text-[9px] text-slate-500 font-bold">{new Date(order.timestamp).toLocaleString()}</span>
                   </div>
-
-                  <div className="mt-8 flex flex-col gap-2">
-                    <div className="flex gap-2">
-                      <button 
-                        disabled={order.status === OrderStatus.COMPLETED}
-                        onClick={() => updateOrderStatus(order.id, OrderStatus.COMPLETED)}
-                        className={`flex-1 text-[11px] font-black uppercase py-3 rounded-xl transition-all ${
-                          order.status === OrderStatus.COMPLETED 
-                          ? 'bg-slate-800 text-slate-600 cursor-not-allowed' 
-                          : 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-500/10'
-                        }`}
-                      >
-                        Complete
-                      </button>
-                      <button 
-                        disabled={order.status === OrderStatus.CANCELLED}
-                        onClick={() => updateOrderStatus(order.id, OrderStatus.CANCELLED)}
-                        className={`flex-1 text-[11px] font-black uppercase py-3 rounded-xl transition-all ${
-                          order.status === OrderStatus.CANCELLED 
-                          ? 'bg-slate-800 text-slate-600 cursor-not-allowed' 
-                          : 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-500/10'
-                        }`}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                    <button 
-                      disabled={order.status === OrderStatus.PENDING}
-                      onClick={() => updateOrderStatus(order.id, OrderStatus.PENDING)}
-                      className={`w-full text-[11px] font-black uppercase py-3 rounded-xl transition-all ${
-                        order.status === OrderStatus.PENDING 
-                        ? 'bg-slate-800 text-slate-600 cursor-not-allowed border border-slate-700' 
-                        : 'bg-amber-500/10 hover:bg-amber-500/20 text-[#f59e0b] border border-[#f59e0b]/30'
-                      }`}
-                    >
-                      {order.status === OrderStatus.PENDING ? 'Currently Pending' : 'Reset to Pending'}
-                    </button>
+                  <h4 className="font-black text-lg text-white mb-4">{order.package.label}</h4>
+                  <div className="bg-slate-900/50 rounded-2xl p-4 space-y-2 border border-slate-800 text-[11px] mb-6">
+                    <div className="flex justify-between"><span className="text-slate-500 font-bold uppercase">Player ID</span><span className="text-slate-200 font-mono">{order.playerId}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-500 font-bold uppercase">Account</span><span className="text-slate-200">{order.accountType}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-500 font-bold uppercase">Payment</span><span className="text-slate-200">{order.paymentMethod}</span></div>
+                    <div className="pt-2 border-t border-slate-800 flex justify-between"><span className="text-slate-500 font-black">TOTAL</span><span className="text-orange-400 font-black">৳{order.totalPrice}</span></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => updateOrderStatus(order.id, OrderStatus.COMPLETED)} className="flex-1 bg-green-600 hover:bg-green-500 text-white text-[10px] font-black uppercase py-2.5 rounded-xl transition-colors">Complete</button>
+                    <button onClick={() => updateOrderStatus(order.id, OrderStatus.CANCELLED)} className="flex-1 bg-red-600 hover:bg-red-500 text-white text-[10px] font-black uppercase py-2.5 rounded-xl transition-colors">Cancel</button>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      ) : (
+      ) : activeTab === 'inventory' ? (
         <div className="space-y-6">
-          <div className="bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-xl">
-            <h3 className="text-xl font-black text-white mb-6">Create New Diamond Package</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-1.5 lg:col-span-2">
+          <div className="bg-[#1e293b] p-6 sm:p-8 rounded-3xl border border-slate-700 shadow-xl">
+            <h3 className="text-xl font-black text-white mb-6">Add New Package</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+              <div className="space-y-2 lg:col-span-1">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Package Name</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. 100 Diamonds + Bonus" 
-                  className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-[#f59e0b] transition-all"
-                  value={newPkg.label}
-                  onChange={(e) => setNewPkg({...newPkg, label: e.target.value})}
-                />
+                <input type="text" placeholder="e.g. 100 Diamonds" className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:border-[#ff7d00] transition-colors" value={newPkg.label} onChange={(e) => setNewPkg({...newPkg, label: e.target.value})} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Price (৳)</label>
-                <input 
-                  type="number" 
-                  placeholder="Price" 
-                  className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-[#f59e0b] transition-all"
-                  value={newPkg.price || ''}
-                  onChange={(e) => setNewPkg({...newPkg, price: parseInt(e.target.value) || 0})}
-                />
+                <input type="number" placeholder="0" className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:border-[#ff7d00] transition-colors" value={newPkg.price || ''} onChange={(e) => setNewPkg({...newPkg, price: parseInt(e.target.value) || 0})} />
               </div>
-              <div className="flex items-end">
-                <button 
-                  onClick={handleAddPackage}
-                  className="w-full bg-[#f59e0b] hover:bg-orange-500 text-slate-950 font-black h-[54px] rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add Package
-                </button>
+              <div className="space-y-2 lg:col-span-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Package Icon</label>
+                <div className="flex items-center gap-3">
+                  <label className="flex-1 bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 cursor-pointer hover:border-[#ff7d00]/50 transition-all overflow-hidden text-ellipsis whitespace-nowrap text-xs text-slate-500 flex items-center gap-2">
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e)} className="hidden" />
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    {newPkg.image ? 'Image Selected' : 'Upload Icon'}
+                  </label>
+                  {newPkg.image && (
+                    <div className="relative group">
+                      <img src={newPkg.image} className="w-11 h-11 object-cover rounded-xl border border-slate-700" alt="Preview" />
+                      <button onClick={removeSelectedImage} className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] hover:bg-red-400 transition-colors">×</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="lg:col-span-1">
+                <button onClick={handleAddPackage} className="w-full bg-[#ff7d00] hover:bg-orange-500 text-slate-950 font-black h-11 rounded-2xl shadow-xl shadow-orange-500/10 transition-all uppercase tracking-widest text-[10px]">Add Package</button>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {packages.map((pkg) => (
-              <div key={pkg.id} className="bg-[#1e293b] border border-slate-700 p-5 rounded-3xl hover:border-[#f59e0b]/30 transition-all shadow-lg group">
-                <p className="text-[10px] font-black text-slate-500 mb-3 uppercase tracking-tighter">{pkg.label}</p>
-                <div className="flex items-center gap-2 mb-5">
-                  <div className="bg-slate-900 rounded-xl px-4 py-2 flex items-center gap-3 border border-slate-800 w-full group-hover:border-slate-700 transition-all">
-                    <span className="text-[#f59e0b] font-black">৳</span>
-                    <input 
-                      type="number" 
-                      value={pkg.price}
-                      onChange={(e) => updatePrice(pkg.id, parseInt(e.target.value) || 0)}
-                      className="w-full bg-transparent font-black text-white text-lg focus:outline-none"
-                    />
+              <div key={pkg.id} className="bg-[#1e293b] border border-slate-700 p-5 rounded-3xl hover:border-[#ff7d00]/30 transition-all shadow-lg group">
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="relative w-14 h-14 shrink-0 overflow-hidden rounded-2xl border-2 border-slate-800 bg-slate-900 group-hover:border-[#ff7d00]/20 transition-colors">
+                    {pkg.image ? (
+                      <img src={pkg.image} className="w-full h-full object-cover" alt={pkg.label} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#ff7d00]">
+                        <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 9.5L12 22L19.5 9.5L12 2Z" /></svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-[11px] font-black text-white uppercase leading-tight truncate">{pkg.label}</p>
+                    <p className="text-[9px] text-slate-500 font-bold mt-1">ID: {pkg.id}</p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => {
-                    if(window.confirm(`Delete ${pkg.label}?`)) deletePackage(pkg.id);
-                  }}
-                  className="w-full bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white text-[10px] font-black py-2.5 rounded-xl transition-all border border-red-500/20 uppercase tracking-widest"
-                >
-                  Delete Item
-                </button>
+                <div className="space-y-4">
+                  <div className="bg-slate-900 rounded-2xl px-4 py-2.5 border border-slate-800 flex items-center gap-3 w-full group-hover:border-slate-700 transition-colors">
+                    <span className="text-[#ff7d00] font-black text-xs">৳</span>
+                    <input 
+                      type="number" 
+                      value={pkg.price} 
+                      onChange={(e) => updatePrice(pkg.id, parseInt(e.target.value) || 0)} 
+                      className="w-full bg-transparent font-black text-white text-sm focus:outline-none" 
+                    />
+                  </div>
+                  <button onClick={() => window.confirm(`Delete ${pkg.label}?`) && deletePackage(pkg.id)} className="w-full bg-red-500/5 hover:bg-red-500 text-red-500 hover:text-white text-[9px] font-black py-2.5 rounded-xl transition-all uppercase tracking-widest border border-red-500/20">Delete Package</button>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-xl max-w-2xl">
+          <h3 className="text-xl font-black text-white mb-6">Store Settings</h3>
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Main Banner Image</label>
+              <div className="relative group rounded-3xl overflow-hidden border border-slate-700 aspect-video mb-4 bg-slate-900 flex items-center justify-center">
+                {bannerPreview ? (
+                  <img src={bannerPreview} className="w-full h-full object-cover" alt="Banner Preview" />
+                ) : (
+                  <span className="text-slate-600 text-xs font-bold uppercase">No Banner Set</span>
+                )}
+                <label className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-all">
+                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, true)} className="hidden" />
+                  <span className="text-white font-black uppercase text-xs">Change Banner</span>
+                </label>
+              </div>
+              <p className="text-[10px] text-slate-500 font-bold leading-relaxed px-1">
+                Recommendation: Use a wide landscape image (16:9 ratio). This image will appear at the top of the store page.
+              </p>
+            </div>
+            
+            <div className="pt-6 border-t border-slate-800">
+              <div className="flex items-center gap-3 p-4 bg-amber-500/10 rounded-2xl border border-amber-500/20">
+                <svg className="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <p className="text-[11px] text-amber-200/80 font-medium">Changes to store settings are saved automatically to your browser's local storage.</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

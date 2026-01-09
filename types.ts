@@ -5,6 +5,7 @@ export interface DiamondPackage {
   diamonds?: number;
   price: number;
   isPopular?: boolean;
+  image?: string; // Base64 or URL
 }
 
 export enum AccountType {
@@ -15,7 +16,9 @@ export enum AccountType {
 
 export enum PaymentMethod {
   BKASH = 'Bkash',
-  NAGAD = 'Nagad'
+  NAGAD = 'Nagad',
+  ROCKET = 'Rocket',
+  UPAY = 'Upay'
 }
 
 export enum OrderStatus {

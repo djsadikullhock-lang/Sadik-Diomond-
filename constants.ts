@@ -1,7 +1,7 @@
 
 import { DiamondPackage } from './types';
 
-export const BUSINESS_NAME = "Sadik Top-Up Store";
+export const BUSINESS_NAME = "Sadik Top-up Store";
 export const PAYMENT_NUMBER = "01759337413";
 export const WHATSAPP_NUMBER = "8801401788594";
 export const SUPPORT_WHATSAPP = "https://wa.me/8801401788594";
@@ -30,18 +30,80 @@ export const ALL_PACKAGES: DiamondPackage[] = [
   { id: '20', label: '7590 Diamonds', price: 4560 },
   { id: '21', label: '10120 Diamonds', price: 6080 },
   { id: '22', label: '12650 Diamonds', price: 7600 },
-  { id: 's1', label: 'Evo Access 3D', price: 65 },
-  { id: 's2', label: 'Evo Access 7D', price: 95 },
-  { id: 's3', label: 'Evo Access 30D', price: 285 },
-  { id: 's4', label: 'Level Up - 6 Level', price: 35 },
-  { id: 's5', label: 'Level Up - 10 Level', price: 60 },
-  { id: 's6', label: 'Level Up - 15 Level', price: 60 },
-  { id: 's7', label: 'Level Up - 20 Level', price: 60 },
-  { id: 's8', label: 'Level Up - 25 Level', price: 60 },
-  { id: 's9', label: 'Level Up - 30 Level', price: 85 },
-  { id: 's10', label: 'Level Up All Package', price: 360 },
-  { id: 's11', label: 'Weekly Lite', price: 38 },
-  { id: 's12', label: 'Weekly Membership', price: 153 },
-  { id: 's13', label: 'Monthly Membership', price: 760 },
-  { id: 's14', label: 'Weekly and Monthly', price: 912 },
+];
+
+export interface ShopProduct {
+  id: string;
+  title: string;
+  image: string;
+  priceRange: string;
+  rating: number;
+  packageIds: string[];
+}
+
+export const SHOP_PRODUCTS: ShopProduct[] = [
+  {
+    id: 'ff-bd',
+    title: 'Free Fire Diamond Top Up BD',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 20 – ৳ 7,600',
+    rating: 4.5,
+    packageIds: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22']
+  },
+  {
+    id: 'ff-weekly',
+    title: 'Free Fire Weekly Membership BD',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 38 – ৳ 153',
+    rating: 4.5,
+    packageIds: []
+  },
+  {
+    id: 'ff-levelup',
+    title: 'Free Fire Level Up Pass BD',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 35 – ৳ 360',
+    rating: 4.8,
+    packageIds: []
+  },
+  {
+    id: 'ff-indo',
+    title: 'Free Fire Diamond Top Up Indonesia',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 10 – ৳ 4,125',
+    rating: 4.2,
+    packageIds: []
+  },
+  {
+    id: 'ff-monthly',
+    title: 'Free Fire Monthly Membership BD',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 760',
+    rating: 5.0,
+    packageIds: []
+  },
+  {
+    id: 'ff-event',
+    title: 'Free Fire Diamond Top-Up Event',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 70 – ৳ 690',
+    rating: 4.6,
+    packageIds: []
+  },
+  {
+    id: 'ff-weekly-lite',
+    title: 'Free Fire Weekly Membership Lite BD',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 38',
+    rating: 4.1,
+    packageIds: []
+  },
+  {
+    id: 'ff-evo',
+    title: 'Free Fire Evo Access BD',
+    image: 'https://media.discordapp.net/attachments/1090184495543263302/1154746487448272936/Free-Fire-Banner.jpg',
+    priceRange: '৳ 65 – ৳ 285',
+    rating: 5.0,
+    packageIds: []
+  }
 ];
