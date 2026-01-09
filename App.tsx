@@ -13,8 +13,8 @@ type View = 'shop' | 'admin' | 'tracker';
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>('shop');
-  const [packages, setPackages] = useState<DiamondPackage[]>([]);
-  const [selectedPackage, setSelectedPackage] = useState<DiamondPackage | null>(null); 
+  const [packages, setPackages] = useState<DiamondPackage[]>(INITIAL_PACKAGES);
+  const [selectedPackage, setSelectedPackage] = useState<DiamondPackage | null>(INITIAL_PACKAGES[3] || INITIAL_PACKAGES[0] || null); 
   const [playerId, setPlayerId] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,13 +27,16 @@ const App: React.FC = () => {
   useEffect(() => {
     const savedPackages = localStorage.getItem('sadik_packages');
     if (savedPackages) {
-      const parsed = JSON.parse(savedPackages);
-      setPackages(parsed);
-      setSelectedPackage(parsed[3] || parsed[0]);
-    } else {
-      setPackages(INITIAL_PACKAGES);
-      setSelectedPackage(INITIAL_PACKAGES[3]);
-      localStorage.setItem('sadik_packages', JSON.stringify(INITIAL_PACKAGES));
+      try {
+        const parsed = JSON.parse(savedPackages);
+        setPackages(parsed);
+        // Sync selected package if the one from INITIAL_PACKAGES isn't the same as in storage
+        if (parsed.length > 0) {
+          setSelectedPackage(parsed[3] || parsed[0]);
+        }
+      } catch (e) {
+        console.error("Failed to parse saved packages", e);
+      }
     }
 
     const savedEmail = localStorage.getItem('sadik_user_email');
@@ -75,6 +78,10 @@ const App: React.FC = () => {
     const updated = packages.filter(p => p.id !== id);
     setPackages(updated);
     localStorage.setItem('sadik_packages', JSON.stringify(updated));
+    // Reset selected package if deleted
+    if (selectedPackage?.id === id) {
+      setSelectedPackage(updated[0] || null);
+    }
   };
 
   const addPackage = (pkg: DiamondPackage) => {
@@ -82,10 +89,6 @@ const App: React.FC = () => {
     setPackages(updated);
     localStorage.setItem('sadik_packages', JSON.stringify(updated));
   };
-
-  if (!selectedPackage && packages.length > 0) {
-    setSelectedPackage(packages[0]);
-  }
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-slate-100 pb-20">
