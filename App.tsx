@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Header from './components/Header';
 import OrderModal from './components/OrderModal';
 import LoginModal from './components/LoginModal';
@@ -224,6 +225,7 @@ const App: React.FC = () => {
       )}
 
       <Footer />
+      <Analytics />
     </div>
   );
 };
